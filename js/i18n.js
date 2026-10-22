@@ -1,0 +1,193 @@
+const STRINGS = {
+  en: {
+    langToggle: 'ಕನ್ನಡ',
+    appTitle: 'SafeStep',
+    tagline: "Alzheimer's Safety & Wandering Alert System",
+    editProfile: 'Edit Profile',
+    medicalIdBtn: 'Medical ID Card',
+    statusSafe: 'SAFE',
+    statusBreach: 'BOUNDARY BREACH',
+    statusSos: 'EMERGENCY SOS',
+    statusSafeMsg: 'Patient is inside the safe zone.',
+    statusBreachMsg: 'Patient has left the safe zone. Check on them now.',
+    statusSosMsg: 'Distress signal active. Respond immediately.',
+    battery: 'Battery',
+    coords: 'Coordinates',
+    distance: 'Distance from zone centre',
+    radius: 'Safe radius',
+    zoneCenter: 'Safe zone location',
+    presetHome: 'Home',
+    presetDaycare: 'Daycare',
+    presetPark: 'Park',
+    clickHint: 'Tip: click the map or drag the patient pin to move them.',
+    startSim: 'Start Wandering Simulation',
+    stopSim: 'Stop Simulation',
+    simIdle: 'Simulation idle',
+    simRunning: 'Simulation running',
+    runDemo: 'Run 10-Second Demo',
+    demoRunning: 'Demo running...',
+    sosBtn: 'SOS Emergency',
+    sosCancel: 'Cancel SOS',
+    whatsappBtn: 'Send WhatsApp Alert',
+    waSent: 'WhatsApp alert opened for the emergency contact.',
+    noContact: 'Add an emergency WhatsApp number in Edit Profile first.',
+    qrTitle: 'Scan on your phone',
+    qrHint: 'Open the dashboard on any mobile browser.',
+    qrNeedsServer: 'Serve this page over http:// to generate a working QR link.',
+    breadcrumb: 'Breadcrumb Movement History',
+    clearTrail: 'Clear Trail',
+    trailPoints: 'points',
+    auditLog: 'Audit Log',
+    clearLog: 'Clear Log',
+    noLogs: 'No events recorded yet.',
+    time: 'Time',
+    event: 'Event',
+    state: 'State',
+    distanceCol: 'Distance',
+    coordsCol: 'Coordinates',
+    mapLink: 'Map',
+    meters: 'm',
+    eventSafe: 'Returned to safe zone',
+    eventBreach: 'Boundary breach detected',
+    eventSos: 'SOS activated',
+    eventSosCleared: 'SOS cleared',
+    eventDemoStart: 'Demo started',
+    eventDemoEnd: 'Demo finished',
+    eventSimStart: 'Wandering simulation started',
+    eventSimStop: 'Wandering simulation stopped',
+    eventWaSent: 'WhatsApp alert dispatched',
+    waTemplate:
+      '🚨 SafeStep ALERT\nPatient: {name}\nStatus: {state}\nTime: {time}\nDistance from safe zone: {distance} m (radius {radius} m)\nCoordinates: {lat}, {lng}\nMap: {link}\nPlease check on them immediately.',
+    profileTitle: 'Patient Profile',
+    profileName: 'Patient name',
+    bloodGroup: 'Blood group',
+    history: 'Medical history',
+    doctor: 'Primary doctor',
+    doctorPhone: 'Doctor contact',
+    contactPhone: 'Emergency WhatsApp number (with country code)',
+    medications: 'Daily medication schedule (one per line)',
+    save: 'Save',
+    cancel: 'Cancel',
+    close: 'Close',
+    medicalIdTitle: 'Emergency Medical ID',
+    cardName: 'Patient',
+    cardBlood: 'Blood group',
+    cardHistory: 'Medical history',
+    cardDoctor: 'Primary doctor',
+    cardDoctorPhone: 'Doctor contact',
+    cardContact: 'Emergency contact',
+    cardMeds: 'Medication schedule',
+    none: '—',
+  },
+  kn: {
+    langToggle: 'English',
+    appTitle: 'ಸೇಫ್‌ಸ್ಟೆಪ್',
+    tagline: 'ಅಲ್ಜೈಮರ್ ಸುರಕ್ಷತೆ ಮತ್ತು ದಾರಿ ತಪ್ಪುವಿಕೆ ಎಚ್ಚರಿಕೆ ವ್ಯವಸ್ಥೆ',
+    editProfile: 'ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ',
+    medicalIdBtn: 'ವೈದ್ಯಕೀಯ ಗುರುತಿನ ಚೀಟಿ',
+    statusSafe: 'ಸುರಕ್ಷಿತ',
+    statusBreach: 'ಗಡಿ ಉಲ್ಲಂಘನೆ',
+    statusSos: 'ತುರ್ತು SOS',
+    statusSafeMsg: 'ರೋಗಿ ಸುರಕ್ಷಿತ ವಲಯದೊಳಗಿದ್ದಾರೆ.',
+    statusBreachMsg: 'ರೋಗಿ ಸುರಕ್ಷಿತ ವಲಯದಿಂದ ಹೊರಗಿದ್ದಾರೆ. ಈಗಲೇ ಪರಿಶೀಲಿಸಿ.',
+    statusSosMsg: 'ತುರ್ತು ಸಂಕೇತ ಸಕ್ರಿಯವಾಗಿದೆ. ತಕ್ಷಣ ಸ್ಪಂದಿಸಿ.',
+    battery: 'ಬ್ಯಾಟರಿ',
+    coords: 'ನಿರ್ದೇಶಾಂಕಗಳು',
+    distance: 'ವಲಯ ಕೇಂದ್ರದಿಂದ ದೂರ',
+    radius: 'ಸುರಕ್ಷಿತ ತ್ರಿಜ್ಯ',
+    zoneCenter: 'ಸುರಕ್ಷಿತ ವಲಯದ ಸ್ಥಳ',
+    presetHome: 'ಮನೆ',
+    presetDaycare: 'ಡೇಕೇರ್',
+    presetPark: 'ಉದ್ಯಾನವನ',
+    clickHint: 'ಸಲಹೆ: ನಕ್ಷೆಯ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ ಅಥವಾ ರೋಗಿಯ ಪಿನ್ ಎಳೆದು ಸರಿಸಿ.',
+    startSim: 'ಅಲೆದಾಟ ಸಿಮ್ಯುಲೇಶನ್ ಪ್ರಾರಂಭಿಸಿ',
+    stopSim: 'ಸಿಮ್ಯುಲೇಶನ್ ನಿಲ್ಲಿಸಿ',
+    simIdle: 'ಸಿಮ್ಯುಲೇಶನ್ ನಿಷ್ಕ್ರಿಯ',
+    simRunning: 'ಸಿಮ್ಯುಲೇಶನ್ ಚಾಲನೆಯಲ್ಲಿದೆ',
+    runDemo: '10 ಸೆಕೆಂಡ್ ಡೆಮೊ ಚಲಾಯಿಸಿ',
+    demoRunning: 'ಡೆಮೊ ಚಾಲನೆಯಲ್ಲಿದೆ...',
+    sosBtn: 'SOS ತುರ್ತು',
+    sosCancel: 'SOS ರದ್ದುಮಾಡಿ',
+    whatsappBtn: 'WhatsApp ಎಚ್ಚರಿಕೆ ಕಳುಹಿಸಿ',
+    waSent: 'ತುರ್ತು ಸಂಪರ್ಕಕ್ಕಾಗಿ WhatsApp ಎಚ್ಚರಿಕೆ ತೆರೆಯಲಾಗಿದೆ.',
+    noContact: 'ಮೊದಲು ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ ವಿಭಾಗದಲ್ಲಿ ತುರ್ತು WhatsApp ಸಂಖ್ಯೆ ಸೇರಿಸಿ.',
+    qrTitle: 'ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ',
+    qrHint: 'ಯಾವುದೇ ಮೊಬೈಲ್ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ತೆರೆಯಿರಿ.',
+    qrNeedsServer: 'ಕಾರ್ಯನಿರ್ವಹಿಸುವ QR ಲಿಂಕ್‌ಗಾಗಿ ಈ ಪುಟವನ್ನು http:// ಮೂಲಕ ನೀಡಿ.',
+    breadcrumb: 'ಚಲನೆಯ ಹಾದಿ ಇತಿಹಾಸ',
+    clearTrail: 'ಹಾದಿ ಅಳಿಸಿ',
+    trailPoints: 'ಬಿಂದುಗಳು',
+    auditLog: 'ಎಚ್ಚರಿಕೆ ದಾಖಲೆ (Audit Log)',
+    clearLog: 'ದಾಖಲೆ ಅಳಿಸಿ',
+    noLogs: 'ಇನ್ನೂ ಯಾವುದೇ ಘಟನೆ ದಾಖಲಾಗಿಲ್ಲ.',
+    time: 'ಸಮಯ',
+    event: 'ಘಟನೆ',
+    state: 'ಸ್ಥಿತಿ',
+    distanceCol: 'ದೂರ',
+    coordsCol: 'ನಿರ್ದೇಶಾಂಕಗಳು',
+    mapLink: 'ನಕ್ಷೆ',
+    meters: 'ಮೀ',
+    eventSafe: 'ಸುರಕ್ಷಿತ ವಲಯಕ್ಕೆ ಮರಳಿದರು',
+    eventBreach: 'ಗಡಿ ಉಲ್ಲಂಘನೆ ಪತ್ತೆಯಾಗಿದೆ',
+    eventSos: 'SOS ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ',
+    eventSosCleared: 'SOS ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+    eventDemoStart: 'ಡೆಮೊ ಪ್ರಾರಂಭವಾಯಿತು',
+    eventDemoEnd: 'ಡೆಮೊ ಮುಕ್ತಾಯವಾಯಿತು',
+    eventSimStart: 'ಅಲೆದಾಟ ಸಿಮ್ಯುಲೇಶನ್ ಪ್ರಾರಂಭವಾಯಿತು',
+    eventSimStop: 'ಅಲೆದಾಟ ಸಿಮ್ಯುಲೇಶನ್ ನಿಲ್ಲಿಸಲಾಯಿತು',
+    eventWaSent: 'WhatsApp ಎಚ್ಚರಿಕೆ ಕಳುಹಿಸಲಾಗಿದೆ',
+    waTemplate:
+      '🚨 ಸೇಫ್‌ಸ್ಟೆಪ್ ಎಚ್ಚರಿಕೆ\nರೋಗಿ: {name}\nಸ್ಥಿತಿ: {state}\nಸಮಯ: {time}\nಸುರಕ್ಷಿತ ವಲಯದಿಂದ ದೂರ: {distance} ಮೀ (ತ್ರಿಜ್ಯ {radius} ಮೀ)\nನಿರ್ದೇಶಾಂಕಗಳು: {lat}, {lng}\nನಕ್ಷೆ: {link}\nದಯವಿಟ್ಟು ತಕ್ಷಣ ಪರಿಶೀಲಿಸಿ.',
+    profileTitle: 'ರೋಗಿಯ ಪ್ರೊಫೈಲ್',
+    profileName: 'ರೋಗಿಯ ಹೆಸರು',
+    bloodGroup: 'ರಕ್ತದ ಗುಂಪು',
+    history: 'ವೈದ್ಯಕೀಯ ಇತಿಹಾಸ',
+    doctor: 'ಮುಖ್ಯ ವೈದ್ಯರು',
+    doctorPhone: 'ವೈದ್ಯರ ಸಂಪರ್ಕ',
+    contactPhone: 'ತುರ್ತು WhatsApp ಸಂಖ್ಯೆ (ದೇಶದ ಕೋಡ್ ಸಹಿತ)',
+    medications: 'ದೈನಂದಿನ ಔಷಧ ವೇಳಾಪಟ್ಟಿ (ಪ್ರತಿ ಸಾಲಿಗೆ ಒಂದು)',
+    save: 'ಉಳಿಸಿ',
+    cancel: 'ರದ್ದುಮಾಡಿ',
+    close: 'ಮುಚ್ಚಿ',
+    medicalIdTitle: 'ತುರ್ತು ವೈದ್ಯಕೀಯ ಗುರುತಿನ ಚೀಟಿ',
+    cardName: 'ರೋಗಿ',
+    cardBlood: 'ರಕ್ತದ ಗುಂಪು',
+    cardHistory: 'ವೈದ್ಯಕೀಯ ಇತಿಹಾಸ',
+    cardDoctor: 'ಮುಖ್ಯ ವೈದ್ಯರು',
+    cardDoctorPhone: 'ವೈದ್ಯರ ಸಂಪರ್ಕ',
+    cardContact: 'ತುರ್ತು ಸಂಪರ್ಕ',
+    cardMeds: 'ಔಷಧ ವೇಳಾಪಟ್ಟಿ',
+    none: '—',
+  },
+};
+
+let current = 'en';
+
+export function getLang() {
+  return current;
+}
+
+export function setLang(lang) {
+  current = STRINGS[lang] ? lang : 'en';
+  document.documentElement.lang = current === 'kn' ? 'kn' : 'en';
+  applyTranslations();
+}
+
+export function t(key, vars = {}) {
+  const str = STRINGS[current][key] ?? STRINGS.en[key] ?? key;
+  return str.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+}
+
+export function localeTag() {
+  return current === 'kn' ? 'kn-IN' : 'en-IN';
+}
+
+/** Applies translations to static markup marked with data-i18n attributes. */
+export function applyTranslations(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach((el) => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  root.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+}

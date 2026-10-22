@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SafeStep logo">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e40af"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 3 L56 11 V30 C56 46 46 56 32 61 C18 56 8 46 8 30 V11 Z" fill="url(#g)"/>
+  <path d="M32 16 C25 16 20 21 20 27.5 C20 36 32 46 32 46 C32 46 44 36 44 27.5 C44 21 39 16 32 16 Z" fill="#ffffff"/>
+  <circle cx="32" cy="27.5" r="4.5" fill="#16a34a"/>
+  <path d="M22 52 Q32 56 42 52" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
+</svg>

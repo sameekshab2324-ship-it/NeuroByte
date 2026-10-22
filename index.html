@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeStep · Alzheimer's Wandering Alert</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Noto Sans Kannada', system-ui, sans-serif; }
+    .pin { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; }
+    .pin-safe { background: #16a34a; }
+    .pin-breach { background: #f59e0b; animation: ring 1.2s infinite; }
+    .pin-sos { background: #dc2626; animation: ring 0.8s infinite; }
+    @keyframes ring {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); }
+      100% { box-shadow: 0 0 0 18px rgba(220, 38, 38, 0); }
+    }
+    .alert-ready { animation: glow 1.2s infinite; }
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+    }
+  </style>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+  <div class="max-w-6xl mx-auto p-4 space-y-4">
+
+    <!-- Header -->
+    <header class="flex flex-wrap items-center justify-between gap-3 bg-white rounded-2xl shadow p-4">
+      <div class="flex items-center gap-3">
+        <img src="logo.svg" alt="SafeStep logo" class="w-12 h-12" />
+        <div>
+          <h1 class="text-2xl font-bold text-blue-900" data-i18n="appTitle">SafeStep</h1>
+          <p class="text-sm text-slate-500" data-i18n="tagline">Alzheimer's Safety & Wandering Alert System</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="langToggle" class="px-3 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold"></button>
+        <button id="editProfileBtn" class="px-3 py-2 rounded-lg bg-blue-100 text-blue-900 text-sm font-semibold" data-i18n="editProfile">Edit Profile</button>
+        <button id="medicalIdBtn" class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold" data-i18n="medicalIdBtn">Medical ID Card</button>
+      </div>
+    </header>
+
+    <!-- Status banner -->
+    <section id="statusBanner" class="rounded-2xl p-5 text-white shadow-lg transition-colors duration-500 bg-green-600">
+      <p id="bannerTitle" class="text-3xl font-extrabold tracking-wide">SAFE</p>
+      <p id="bannerMsg" class="text-base mt-1"></p>
+    </section>
+
+    <div class="grid lg:grid-cols-3 gap-4">
+      <!-- Map + controls -->
+      <section class="lg:col-span-2 bg-white rounded-2xl shadow p-4 space-y-3">
+        <div id="map" class="w-full h-[420px] rounded-xl overflow-hidden"></div>
+        <p class="text-xs text-slate-500" data-i18n="clickHint"></p>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              <span data-i18n="radius">Safe radius</span>: <span id="radiusValue">150</span> m
+            </label>
+            <input id="radiusSlider" type="range" min="50" max="300" step="10" value="150" class="w-full accent-blue-700" />
+            <div class="flex justify-between text-xs text-slate-400"><span>50 m</span><span>300 m</span></div>
+          </div>
+          <div>
+            <p class="block text-sm font-semibold mb-1" data-i18n="zoneCenter">Safe zone location</p>
+            <div class="flex gap-2">
+              <button data-preset="home" class="flex-1 px-2 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-i18n="presetHome">Home</button>
+              <button data-preset="daycare" class="flex-1 px-2 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-i18n="presetDaycare">Daycare</button>
+              <button data-preset="park" class="flex-1 px-2 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-i18n="presetPark">Park</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Telemetry + actions -->
+      <aside class="bg-white rounded-2xl shadow p-4 space-y-4">
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div class="bg-slate-50 rounded-xl p-3">
+            <p class="text-slate-500" data-i18n="battery">Battery</p>
+            <p id="batteryText" class="text-xl font-bold">100%</p>
+            <div class="h-2 bg-slate-200 rounded mt-1"><div id="batteryBar" class="h-2 rounded bg-green-500 transition-all" style="width:100%"></div></div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3">
+            <p class="text-slate-500" data-i18n="distance">Distance from zone centre</p>
+            <p id="distanceText" class="text-xl font-bold">0 m</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 col-span-2">
+            <p class="text-slate-500" data-i18n="coords">Coordinates</p>
+            <p id="coordsText" class="font-mono text-sm">—</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <button id="simToggleBtn" class="w-full px-3 py-2 rounded-lg bg-emerald-600 text-white font-semibold"></button>
+          <p id="simStatus" class="text-xs text-slate-500 text-center" data-i18n="simIdle">Simulation idle</p>
+          <button id="demoBtn" class="w-full px-3 py-2 rounded-lg bg-purple-600 text-white font-semibold" data-i18n="runDemo">Run 10-Second Demo</button>
+          <p id="demoStatus" class="hidden text-xs text-purple-700 text-center font-semibold" data-i18n="demoRunning">Demo running...</p>
+        </div>
+
+        <div class="space-y-2">
+          <button id="sosBtn" class="w-full px-3 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-lg font-extrabold"></button>
+          <button id="waBtn" class="w-full px-3 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-semibold" data-i18n="whatsappBtn">Send WhatsApp Alert</button>
+          <p id="waStatus" class="text-xs text-center text-slate-500"></p>
+        </div>
+
+        <div class="text-center border-t pt-3">
+          <p class="font-semibold text-sm" data-i18n="qrTitle">Scan on your phone</p>
+          <div id="qrBox" class="flex justify-center my-2"></div>
+          <p class="text-xs text-slate-500" data-i18n="qrHint"></p>
+          <p id="qrNote" class="hidden text-xs text-amber-700 mt-1" data-i18n="qrNeedsServer"></p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Breadcrumb -->
+    <section class="bg-white rounded-2xl shadow p-4 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <p class="font-semibold" data-i18n="breadcrumb">Breadcrumb Movement History</p>
+        <p class="text-xs text-slate-500"><span id="trailCount">0</span> <span data-i18n="trailPoints">points</span></p>
+      </div>
+      <button id="clearTrailBtn" class="px-3 py-2 rounded-lg bg-slate-200 text-sm font-semibold" data-i18n="clearTrail">Clear Trail</button>
+    </section>
+
+    <!-- Audit log -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <div class="flex items-center justify-between mb-2">
+        <p class="font-semibold" data-i18n="auditLog">Audit Log</p>
+        <button id="clearLogBtn" class="px-3 py-1 rounded-lg bg-slate-200 text-sm font-semibold" data-i18n="clearLog">Clear Log</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-slate-500 border-b">
+            <tr>
+              <th class="py-2 pr-3" data-i18n="time">Time</th>
+              <th class="py-2 pr-3" data-i18n="event">Event</th>
+              <th class="py-2 pr-3" data-i18n="state">State</th>
+              <th class="py-2 pr-3" data-i18n="distanceCol">Distance</th>
+              <th class="py-2 pr-3" data-i18n="coordsCol">Coordinates</th>
+              <th class="py-2" data-i18n="mapLink">Map</th>
+            </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Emergency medical ID modal -->
+  <div id="medicalModal" class="hidden fixed inset-0 bg-black/60 items-center justify-center p-4 z-[1000]">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-red-700" data-i18n="medicalIdTitle">Emergency Medical ID</h2>
+        <button id="closeMedicalBtn" class="px-3 py-1 rounded bg-slate-200 text-sm" data-i18n="close">Close</button>
+      </div>
+      <dl class="text-sm space-y-2">
+        <div><dt class="text-slate-500" data-i18n="cardName">Patient</dt><dd id="cardName" class="font-bold text-lg"></dd></div>
+        <div><dt class="text-slate-500" data-i18n="cardBlood">Blood group</dt><dd id="cardBlood" class="font-bold text-red-700 text-lg"></dd></div>
+        <div><dt class="text-slate-500" data-i18n="cardHistory">Medical history</dt><dd id="cardHistory"></dd></div>
+        <div><dt class="text-slate-500" data-i18n="cardDoctor">Primary doctor</dt><dd id="cardDoctor"></dd></div>
+        <div><dt class="text-slate-500" data-i18n="cardDoctorPhone">Doctor contact</dt><dd id="cardDoctorPhone"></dd></div>
+        <div><dt class="text-slate-500" data-i18n="cardContact">Emergency contact</dt><dd id="cardContact"></dd></div>
+        <div><dt class="text-slate-500" data-i18n="cardMeds">Medication schedule</dt><dd><ul id="cardMeds" class="list-disc pl-5"></ul></dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Profile editor modal -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black/60 items-center justify-center p-4 z-[1000]">
+    <form id="profileForm" class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-3">
+      <h2 class="text-xl font-bold" data-i18n="profileTitle">Patient Profile</h2>
+      <label class="block text-sm"><span data-i18n="profileName">Patient name</span>
+        <input name="name" class="mt-1 w-full border rounded-lg px-3 py-2" /></label>
+      <label class="block text-sm"><span data-i18n="bloodGroup">Blood group</span>
+        <input name="bloodGroup" class="mt-1 w-full border rounded-lg px-3 py-2" /></label>
+      <label class="block text-sm"><span data-i18n="history">Medical history</span>
+        <input name="history" class="mt-1 w-full border rounded-lg px-3 py-2" /></label>
+      <label class="block text-sm"><span data-i18n="doctor">Primary doctor</span>
+        <input name="doctor" class="mt-1 w-full border rounded-lg px-3 py-2" /></label>
+      <label class="block text-sm"><span data-i18n="doctorPhone">Doctor contact</span>
+        <input name="doctorPhone" class="mt-1 w-full border rounded-lg px-3 py-2" /></label>
+      <label class="block text-sm"><span data-i18n="contactPhone">Emergency WhatsApp number (with country code)</span>
+        <input name="contactPhone" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="+91..." /></label>
+      <label class="block text-sm"><span data-i18n="medications">Daily medication schedule (one per line)</span>
+        <textarea name="medications" rows="4" class="mt-1 w-full border rounded-lg px-3 py-2"></textarea></label>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" id="cancelProfileBtn" class="px-4 py-2 rounded-lg bg-slate-200" data-i18n="cancel">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold" data-i18n="save">Save</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
